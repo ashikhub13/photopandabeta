@@ -43,8 +43,6 @@ extern "C" {
                     uint8_t* pixelPtr = (uint8_t*)matImage.data;
                     int cn = matImage.channels();
                     double no_pixels = matImage.cols * matImage.rows;
-                    __android_log_print(ANDROID_LOG_INFO, "cols", "test int = %d", matImage.cols);
-                    __android_log_print(ANDROID_LOG_INFO, "rows", "test int = %d", matImage.rows);
                     double no_dark_pixels = 0;
 
                     for(int i = 0; i < matImage.rows; i++)
@@ -67,9 +65,8 @@ extern "C" {
 
                     double ratio = no_dark_pixels / no_pixels;
                     //    Change the ratio to optimize the dark images.
-                    __android_log_print(ANDROID_LOG_INFO, "ratio", "test int = %f", ratio);
-                    __android_log_print(ANDROID_LOG_INFO, "no_dark_pixels", "test int = %f", no_dark_pixels);
-                    __android_log_print(ANDROID_LOG_INFO, "no_pixels", "test int = %f", no_pixels);
+
+
 
 
                     if (ratio >= .7) {
@@ -100,16 +97,15 @@ extern "C" {
                    cv::Scalar mu, sigma;
                    cv::meanStdDev(lap, mu, sigma);
 
-                   __android_log_print(ANDROID_LOG_INFO, "sometag", "test int = %f", sigma.val[0]);
 
                    double focusMeasure = sigma.val[0]*sigma.val[0];
                    //NSLog(@"%f", focusMeasure);
 
                    // Change the value 55 here to optimise the blurry detection
 
+                   __android_log_print(ANDROID_LOG_INFO, "focusmeasure", "test int = %f", focusMeasure);
 
-                    __android_log_print(ANDROID_LOG_INFO, "sometag", "test int = %f", focusMeasure);
-                   if (focusMeasure < 55) {
+                   if (focusMeasure < 1800) {
                        return JNI_TRUE;
                    } else {
                        return JNI_FALSE;

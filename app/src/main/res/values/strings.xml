@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">PhotoPandaBeta</string>
+    <string name="label_enable">Enable</string>
+    <string name="message_storage_permission_denied">Storage permission denied.</string>
+    <string name="alert_message_storage_permission">Storage Permission</string>
+    <string name="label_allow">Allow</string>
+    <string name="label_cancel">Cancel</string>
 </resources>
