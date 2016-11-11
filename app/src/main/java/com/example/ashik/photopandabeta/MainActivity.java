@@ -4,11 +4,9 @@ import android.database.Cursor;
 import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
@@ -16,12 +14,10 @@ import android.support.v7.widget.GridLayoutManager;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.ashik.photopandabeta.databinding.ActivityMainBinding;
 
-import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
@@ -37,6 +33,7 @@ public class MainActivity extends BasePermissionActivity {
     private int imageHeight, imageHeight2, imageWidth, imageWidth2;
     private ArrayList<String> duplisfull = new ArrayList<String>();
     private ArrayList<String> images = new ArrayList<>();
+    private ArrayList<String> screenshotImages = new ArrayList<>();
     private ArrayList<String> darkImages = new ArrayList<>();
     private ArrayList<String> blurImages = new ArrayList<>();
     private ArrayList<ArrayList<String>> sectionedImages = new ArrayList<ArrayList<String>>();
@@ -58,7 +55,7 @@ public class MainActivity extends BasePermissionActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        imagesLock= new Object();
+        imagesLock = new Object();
         initBinding();
         initRecyclerView();
 
@@ -75,11 +72,13 @@ public class MainActivity extends BasePermissionActivity {
         if (mPermissionRequestCode == 1) {
             Log.d("start of ip", "start of image processing");
             images = getAllShownImagesPath();
+            getallScreenshots();
             sortByDimensions(images);
             Log.d("images", images.toString());
+            Log.d("screenshtimages", screenshotImages.toString());
             Log.d("sectionedimages", sectionedImages.toString());
-            if(!images.isEmpty())
-            doBackgroundUpdate1();
+            if (!images.isEmpty())
+                doBackgroundUpdate1();
                 Log.d("end of ip", "end of image processing");
 //            Picasso.with(this).load(images.get(0).toString()).into(whoamiwith);
 //            Log.d("orrgnl image", images.get(0).toString());
@@ -238,7 +237,7 @@ public class MainActivity extends BasePermissionActivity {
 
     private Bitmap getBitmap(String imageDir, int position) {
 
-        Bitmap original =BitmapHelper.decodeSampledBitmapFromFile(imageDir,50,50);
+        Bitmap original = BitmapHelper.decodeSampledBitmapFromFile(imageDir, 50, 50);
         Log.d("TAG imgdir", imageDir);
         return original;
 
@@ -274,8 +273,8 @@ public class MainActivity extends BasePermissionActivity {
         String[] projection = {MediaStore.MediaColumns.DATA,
                 MediaStore.Images.Media.BUCKET_DISPLAY_NAME};
 
-        cursor = this.getContentResolver().query(uri, projection, MediaStore.MediaColumns.SIZE+">0",
-                 null , null);
+        cursor = this.getContentResolver().query(uri, projection, MediaStore.MediaColumns.SIZE + ">0",
+                null, null);
 
 
         column_index_data = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
@@ -331,9 +330,10 @@ public class MainActivity extends BasePermissionActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            synchronized (mImageAdapter){
+                            synchronized (mImageAdapter) {
 
-                            mImageAdapter.notifyDataSetChanged();}
+                                mImageAdapter.notifyDataSetChanged();
+                            }
 
 
                         }
@@ -352,7 +352,7 @@ public class MainActivity extends BasePermissionActivity {
 
     private void initRecyclerView() {
 
-        mImageAdapter = new ImageAdapter(this,duplisfull);
+        mImageAdapter = new ImageAdapter(this, duplisfull);
         mActivityMainBinding.galleryRecyclerView.setAdapter(mImageAdapter);
         //mActivityMainBinding.galleryRecyclerView.setRefreshListener(this);
 //        mActivityImageDetailBinding.imageShowcaseRecyclerView.setRefreshingColorResources(
@@ -369,7 +369,7 @@ public class MainActivity extends BasePermissionActivity {
                     public void onGlobalLayout() {
                         int viewWidth = mActivityMainBinding.galleryRecyclerView
                                 .getMeasuredWidth();
-                        if(viewWidth > 0){
+                        if (viewWidth > 0) {
 
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                                 mActivityMainBinding.galleryRecyclerView
@@ -391,32 +391,14 @@ public class MainActivity extends BasePermissionActivity {
                 .setLayoutManager(mGridLayoutManager);
     }
 
-    private  ArrayList<String> getallScreenshots(){
-        Uri uri;
-        Cursor cursor;
-        int column_index_data, column_index_folder_name;
-        ArrayList<String> listOfAllImages = new ArrayList<String>();
-        String absolutePathOfImage = Environment.getExternalStorageDirectory()
-                + File.separator + Environment.DIRECTORY_PICTURES
-                + File.separator + "Screenshots" + File.separator;;
-        uri = android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+    private ArrayList<String> getallScreenshots() {
+        for (String image : images
+                ) {
+            if (image.contains("/Screenshots/"))
+                screenshotImages.add(image);
 
-        String[] projection = {MediaStore.MediaColumns.DATA,
-                MediaStore.Images.Media.BUCKET_DISPLAY_NAME};
-
-        cursor = this.getContentResolver().query(uri, projection, MediaStore.MediaColumns.SIZE+">0",
-                null , null);
-
-
-        column_index_data = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
-        column_index_folder_name = cursor
-                .getColumnIndexOrThrow(MediaStore.Images.Media.BUCKET_DISPLAY_NAME);
-        while (cursor.moveToNext()) {
-            absolutePathOfImage = cursor.getString(column_index_data);
-
-            listOfAllImages.add(absolutePathOfImage);
         }
-        return listOfAllImages;
+        return screenshotImages;
     }
 
 }
