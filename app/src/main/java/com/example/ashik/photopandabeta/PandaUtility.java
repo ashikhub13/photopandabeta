@@ -111,4 +111,8 @@ public class PandaUtility {
                 })
                 .create();
     }
+
+    public static boolean isUrl(String path){
+        return path.startsWith("http") || path.startsWith("https");
+    }
 }

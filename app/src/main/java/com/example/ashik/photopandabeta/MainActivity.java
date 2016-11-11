@@ -1,18 +1,25 @@
 package com.example.ashik.photopandabeta;
 
 import android.database.Cursor;
+import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
+import android.support.v7.widget.GridLayoutManager;
 import android.util.Log;
+import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.example.ashik.photopandabeta.databinding.ActivityMainBinding;
 
 import java.io.File;
 import java.nio.ByteBuffer;
@@ -28,12 +35,16 @@ public class MainActivity extends BasePermissionActivity {
     private double c = 0;
     private Bitmap innerBitmap, innerBitmap2, myBitmap;
     private int imageHeight, imageHeight2, imageWidth, imageWidth2;
-    private ArrayList<ArrayList<String>> duplisfull = new ArrayList<ArrayList<String>>();
+    private ArrayList<String> duplisfull = new ArrayList<String>();
     private ArrayList<String> images = new ArrayList<>();
     private ArrayList<String> darkImages = new ArrayList<>();
     private ArrayList<String> blurImages = new ArrayList<>();
     private ArrayList<ArrayList<String>> sectionedImages = new ArrayList<ArrayList<String>>();
     private TextView textView;
+    private ImageAdapter mImageAdapter;
+    private ActivityMainBinding mActivityMainBinding;
+    private GridLayoutManager mGridLayoutManager;
+    private Object imagesLock;
 
 
     public native String testfun(String examp);
@@ -47,6 +58,10 @@ public class MainActivity extends BasePermissionActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        imagesLock= new Object();
+        initBinding();
+        initRecyclerView();
+
         // First decode with inJustDecodeBounds=true to check dimensions
 
 
@@ -211,7 +226,8 @@ public class MainActivity extends BasePermissionActivity {
                 }
                 if (!duplis.isEmpty()) {
                     duplis.add(section.get(k));
-                    duplisfull.add(duplis);
+                    duplisfull.addAll(duplis);
+                    duplisfull.add("1");
                 }
             }
         }
@@ -315,13 +331,9 @@ public class MainActivity extends BasePermissionActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+                            synchronized (mImageAdapter){
 
-                            textView= (TextView) findViewById(R.id.helloworld);
-                            textView.setText(duplisfull.toString());
-                            ImageView imageView =(ImageView) findViewById(R.id.imageView);
-                            ImageView imageView2 =(ImageView) findViewById(R.id.imageView2);
-                            imageView.setImageURI(Uri.parse(duplisfull.get(0).get(0)));
-                            imageView2.setImageURI(Uri.parse(duplisfull.get(0).get(1)));
+                            mImageAdapter.notifyDataSetChanged();}
 
 
                         }
@@ -330,5 +342,81 @@ public class MainActivity extends BasePermissionActivity {
             }
         }
     };
+
+    private void initBinding() {
+        View rootView = getLayoutInflater().inflate(R.layout.activity_main, null);
+        mActivityMainBinding = DataBindingUtil.bind(rootView);
+        mActivityMainBinding.executePendingBindings();
+        setContentView(rootView);
+    }
+
+    private void initRecyclerView() {
+
+        mImageAdapter = new ImageAdapter(this,duplisfull);
+        mActivityMainBinding.galleryRecyclerView.setAdapter(mImageAdapter);
+        //mActivityMainBinding.galleryRecyclerView.setRefreshListener(this);
+//        mActivityImageDetailBinding.imageShowcaseRecyclerView.setRefreshingColorResources(
+//                android.R.color.holo_orange_light,
+//                android.R.color.holo_blue_light,
+//                android.R.color.holo_green_light,
+//                android.R.color.holo_red_light
+//        );
+        mGridLayoutManager = new GridLayoutManager(this, 3);
+        mActivityMainBinding.galleryRecyclerView
+                .getViewTreeObserver().addOnGlobalLayoutListener(
+                new ViewTreeObserver.OnGlobalLayoutListener() {
+                    @Override
+                    public void onGlobalLayout() {
+                        int viewWidth = mActivityMainBinding.galleryRecyclerView
+                                .getMeasuredWidth();
+                        if(viewWidth > 0){
+
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                                mActivityMainBinding.galleryRecyclerView
+                                        .getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                            } else {
+                                //noinspection deprecation
+                                mActivityMainBinding.galleryRecyclerView
+                                        .getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                            }
+                            float cardViewWidth = getResources().getDimension(R.dimen.width);
+                            int newSpanCount = (int) Math.floor(viewWidth / cardViewWidth);
+                            mGridLayoutManager.setSpanCount(newSpanCount);
+                            mGridLayoutManager.requestLayout();
+                        }
+                    }
+                });
+
+        mActivityMainBinding.galleryRecyclerView
+                .setLayoutManager(mGridLayoutManager);
+    }
+
+    private  ArrayList<String> getallScreenshots(){
+        Uri uri;
+        Cursor cursor;
+        int column_index_data, column_index_folder_name;
+        ArrayList<String> listOfAllImages = new ArrayList<String>();
+        String absolutePathOfImage = Environment.getExternalStorageDirectory()
+                + File.separator + Environment.DIRECTORY_PICTURES
+                + File.separator + "Screenshots" + File.separator;;
+        uri = android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+
+        String[] projection = {MediaStore.MediaColumns.DATA,
+                MediaStore.Images.Media.BUCKET_DISPLAY_NAME};
+
+        cursor = this.getContentResolver().query(uri, projection, MediaStore.MediaColumns.SIZE+">0",
+                null , null);
+
+
+        column_index_data = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
+        column_index_folder_name = cursor
+                .getColumnIndexOrThrow(MediaStore.Images.Media.BUCKET_DISPLAY_NAME);
+        while (cursor.moveToNext()) {
+            absolutePathOfImage = cursor.getString(column_index_data);
+
+            listOfAllImages.add(absolutePathOfImage);
+        }
+        return listOfAllImages;
+    }
 
 }
