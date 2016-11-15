@@ -67,15 +67,16 @@ extern "C" {
                     //    Change the ratio to optimize the dark images.
 
 
-
+                    env->ReleaseByteArrayElements(yuv, _yuv, 0);
+                    env->ReleaseIntArrayElements(bgra, _bgra, 0);
+                    // __android_log_print(ANDROID_LOG_INFO, "focusmeasure", "test int = %f", ratio);
 
                     if (ratio >= .7) {
                         return JNI_TRUE;
                     } else {
                         return JNI_FALSE;
                     }
-                         env->ReleaseByteArrayElements(yuv, _yuv, 0);
-                                        env->ReleaseIntArrayElements(bgra, _bgra, 0);
+
 
     }
 
@@ -103,13 +104,17 @@ extern "C" {
 
                    // Change the value 55 here to optimise the blurry detection
 
-                   __android_log_print(ANDROID_LOG_INFO, "focusmeasure", "test int = %f", focusMeasure);
+                    // __android_log_print(ANDROID_LOG_INFO, "focusmeasure", "test int = %f", focusMeasure);
 
-                   if (focusMeasure < 1800) {
+                   env->ReleaseByteArrayElements(yuv, _yuv, 0);
+                   env->ReleaseIntArrayElements(bgra, _bgra, 0);
+
+                   if (focusMeasure < 1000) {
                        return JNI_TRUE;
                    } else {
                        return JNI_FALSE;
                    }
+
            }
 
 

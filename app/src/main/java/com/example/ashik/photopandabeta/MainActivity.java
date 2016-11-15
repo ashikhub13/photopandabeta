@@ -18,8 +18,11 @@ import android.widget.TextView;
 
 import com.example.ashik.photopandabeta.databinding.ActivityMainBinding;
 
+import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 public class MainActivity extends BasePermissionActivity {
 
@@ -36,6 +39,10 @@ public class MainActivity extends BasePermissionActivity {
     private ArrayList<String> screenshotImages = new ArrayList<>();
     private ArrayList<String> darkImages = new ArrayList<>();
     private ArrayList<String> blurImages = new ArrayList<>();
+    private ArrayList<String> nostalgiaImages = new ArrayList<>();
+    private ArrayList<String> finalImages = new ArrayList<>();
+
+
     private ArrayList<ArrayList<String>> sectionedImages = new ArrayList<ArrayList<String>>();
     private TextView textView;
     private ImageAdapter mImageAdapter;
@@ -79,7 +86,7 @@ public class MainActivity extends BasePermissionActivity {
             Log.d("sectionedimages", sectionedImages.toString());
             if (!images.isEmpty())
                 doBackgroundUpdate1();
-                Log.d("end of ip", "end of image processing");
+            Log.d("end of ip", "end of image processing");
 //            Picasso.with(this).load(images.get(0).toString()).into(whoamiwith);
 //            Log.d("orrgnl image", images.get(0).toString());
 //            Log.d("dp", duplis.toString());
@@ -115,50 +122,29 @@ public class MainActivity extends BasePermissionActivity {
         sectionedImages.add(sortedImages);
     }
 
-    private void checkDark(ArrayList<String> images, int i) {
+    private void checkDark(ArrayList<String> images, int i, byte[] array, int[] pixels, Bitmap innerBitmap) {
 
-        Bitmap innerBitmap = getBitmap(images.get(i), i);
-        if (innerBitmap != null) {
-            int bytes = innerBitmap.getByteCount();
-            ByteBuffer buffer = ByteBuffer.allocate(bytes); //Create a new buffer
-            innerBitmap.copyPixelsToBuffer(buffer); //Move the byte data to the buffer
-
-            byte[] array = buffer.array();
-            int[] pixels = new int[innerBitmap.getHeight() * innerBitmap.getWidth()];
-            innerBitmap.getPixels(pixels, 0, innerBitmap.getWidth(), 0, 0, innerBitmap.getWidth(),
-                    innerBitmap.getHeight());
-            if (isDark(innerBitmap.getWidth(), innerBitmap.getHeight(), array, pixels)) {
-                Log.d("TAGDARK", "dark");
-                Log.d("TAGDARK", images.get(i));
-                darkImages.add(images.get(i));
-            }
+        if (isDark(innerBitmap.getWidth(), innerBitmap.getHeight(), array, pixels)) {
+            //        Log.d("TAGDARK", "dark");
+            //        Log.d("TAGDARK", images.get(i));
+            darkImages.add(images.get(i));
         }
+
     }
 
-    private void checkBlur(ArrayList<String> images, int i) {
+    private void checkBlur(ArrayList<String> images, int i, byte[] array, int[] pixels, Bitmap innerBitmap) {
 
-        Bitmap innerBitmap = getBitmap(images.get(i), i);
-        if (innerBitmap != null) {
-            int bytes = innerBitmap.getByteCount();
-            ByteBuffer buffer = ByteBuffer.allocate(bytes); //Create a new buffer
-            innerBitmap.copyPixelsToBuffer(buffer); //Move the byte data to the buffer
-
-            byte[] array = buffer.array();
-            int[] pixels = new int[innerBitmap.getHeight() * innerBitmap.getWidth()];
-            innerBitmap.getPixels(pixels, 0, innerBitmap.getWidth(), 0, 0, innerBitmap.getWidth(),
-                    innerBitmap.getHeight());
-            if (isBlur(innerBitmap.getWidth(), innerBitmap.getHeight(), array, pixels)) {
-                Log.d("TAGBLUR", "blur");
-                Log.d("TAGBLUR", images.get(i));
-                blurImages.add(images.get(i));
-
-            }
+        if (isBlur(innerBitmap.getWidth(), innerBitmap.getHeight(), array, pixels)) {
+            //        Log.d("TAGBLUR", "blur");
+            //        Log.d("TAGBLUR", images.get(i));
+            blurImages.add(images.get(i));
         }
     }
 
     private void compareImages(ArrayList<ArrayList<String>> sectionedImages) {
         Log.d("blurImages", blurImages.toString());
         Log.d("darkImages", darkImages.toString());
+        Log.d("nostalgiaImages", nostalgiaImages.toString());
 
 
         Log.d("TAG of ic", "start of image compare");
@@ -169,15 +155,15 @@ public class MainActivity extends BasePermissionActivity {
             ArrayList<String> duplis = new ArrayList<>();
             ArrayList<String> section = new ArrayList<>();
             section = sectionedImages.get(i);
-            Log.d("TAG", section.toString());
+            //        Log.d("TAG", section.toString());
 
             for (int k = 0; k < section.size(); k++) {
                 String imageDir1 = section.get(k);
-                Log.d("TAG by", "by" + section.get(k));
+                //           Log.d("TAG by", "by" + section.get(k));
 
                 for (int j = k + 1; j < section.size(); j++) {
                     c = 0;
-                    Log.d("TAG with ", "with" + section.get(j));
+                    //                Log.d("TAG with ", "with" + section.get(j));
                     String imageDir2 = section.get(j);
 
                     innerBitmap = getBitmap(imageDir1, k);
@@ -209,10 +195,10 @@ public class MainActivity extends BasePermissionActivity {
                             }
                         }
                         double ratio = (c / array.length);
-                        Log.d("TAG ratio", Double.toString(c / array.length));
+                        //Log.d("TAG ratio", Double.toString(c / array.length));
                         if (ratio > .8) {
-                            Log.d("TAG same?", "same");
-                            Log.d("TAG ratio", Double.toString(c / array.length));
+                            //                    Log.d("TAG same?", "same");
+                            //                    Log.d("TAG ratio", Double.toString(c / array.length));
                             duplis.add(section.get(j));
                             section.remove(j);
 //                        Log.d("similarity level", Integer.toString(c));
@@ -226,19 +212,22 @@ public class MainActivity extends BasePermissionActivity {
                 if (!duplis.isEmpty()) {
                     duplis.add(section.get(k));
                     duplisfull.addAll(duplis);
-                    duplisfull.add("1");
+                    //duplisfull.add("1");
                 }
             }
         }
         Log.d("TAG end of ic", "end of image compare");
         Log.d("duplisfull", duplisfull.toString());
+        finalImages.addAll(duplisfull);
+        Log.d("finalImages", finalImages.toString());
+
 
     }
 
     private Bitmap getBitmap(String imageDir, int position) {
 
         Bitmap original = BitmapHelper.decodeSampledBitmapFromFile(imageDir, 50, 50);
-        Log.d("TAG imgdir", imageDir);
+        //    Log.d("TAG imgdir", imageDir);
         return original;
 
     }
@@ -294,9 +283,24 @@ public class MainActivity extends BasePermissionActivity {
             @Override
             public void run() {
                 for (int i = 0; i < images.size(); i++) {
-                    checkDark(images, i);
-                    checkBlur(images, i);
+                    Bitmap innerBitmap = getBitmap(images.get(i), i);
+                    if (innerBitmap != null) {
+                        int bytes = innerBitmap.getByteCount();
+                        ByteBuffer buffer = ByteBuffer.allocate(bytes); //Create a new buffer
+                        innerBitmap.copyPixelsToBuffer(buffer); //Move the byte data to the buffer
+
+                        byte[] array = buffer.array();
+                        int[] pixels = new int[innerBitmap.getHeight() * innerBitmap.getWidth()];
+                        innerBitmap.getPixels(pixels, 0, innerBitmap.getWidth(), 0, 0, innerBitmap.getWidth(),
+                                innerBitmap.getHeight());
+                        checkDark(images, i, array, pixels, innerBitmap);
+                        checkBlur(images, i, array, pixels, innerBitmap);
+                        getCreatedDate(images.get(i));
+                    }
                 }
+                finalImages.addAll(darkImages);
+                finalImages.addAll(blurImages);
+                finalImages.addAll(nostalgiaImages);
                 Message msg = Message.obtain();
                 msg.what = 1;
                 handler.sendMessage(msg);
@@ -312,7 +316,7 @@ public class MainActivity extends BasePermissionActivity {
                 compareImages(sectionedImages);
                 // finished second step
                 Message msg = Message.obtain();
-                msg.what = 2;
+                msg.what = 3;
                 handler.sendMessage(msg);
             }
         };
@@ -324,9 +328,25 @@ public class MainActivity extends BasePermissionActivity {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case 1:
-                    doBackgroundUpdate2();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            synchronized (mImageAdapter) {
+
+                                mImageAdapter.notifyDataSetChanged();
+                            }
+
+
+                        }
+                    });
+                    msg = Message.obtain();
+                    msg.what = 2;
+                    handler.sendMessage(msg);
                     break;
                 case 2:
+                    doBackgroundUpdate2();
+                    break;
+                case 3:
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -352,7 +372,7 @@ public class MainActivity extends BasePermissionActivity {
 
     private void initRecyclerView() {
 
-        mImageAdapter = new ImageAdapter(this, duplisfull);
+        mImageAdapter = new ImageAdapter(this, finalImages);
         mActivityMainBinding.galleryRecyclerView.setAdapter(mImageAdapter);
         //mActivityMainBinding.galleryRecyclerView.setRefreshListener(this);
 //        mActivityImageDetailBinding.imageShowcaseRecyclerView.setRefreshingColorResources(
@@ -400,5 +420,39 @@ public class MainActivity extends BasePermissionActivity {
         }
         return screenshotImages;
     }
+
+    private void getCreatedDate(String image) {
+        File file = new File(image);
+        Date lastModDate = new Date(file.lastModified());
+        if (isToday(lastModDate)) {
+            nostalgiaImages.add(image);
+        }
+    }
+
+    private boolean isToday(Date date) {
+        return areDatesEqual(date, new Date());
+    }
+
+    /**
+     * Checks if two dates are equal based on Year and Day of Year.
+     *
+     * @param date1 first date
+     * @param date2 second date
+     * @return whether the dates are equal or not
+     */
+    public static boolean areDatesEqual(Date date1, Date date2) {
+        Calendar calendar1 = Calendar.getInstance();
+        Calendar calendar2 = Calendar.getInstance();
+
+        if (date1 == null || date2 == null) {
+            return false;
+        }
+        calendar1.setTime(date1);
+        calendar2.setTime(date2);
+
+        return ((calendar1.get(Calendar.YEAR) == calendar2.get(Calendar.YEAR))
+                && (calendar1.get(Calendar.DAY_OF_YEAR) == calendar2.get(Calendar.DAY_OF_YEAR)));
+    }
+
 
 }

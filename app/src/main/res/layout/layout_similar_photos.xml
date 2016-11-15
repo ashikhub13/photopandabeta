@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
     <android.support.v7.widget.CardView
         android:id="@+id/root_CardView"
@@ -8,22 +7,21 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="4dp"
         android:layout_marginRight="4dp"
-        android:background="@android:color/transparent"
-        >
+        android:background="@android:color/transparent">
 
-            <FrameLayout
-                android:id="@+id/root_FrameLayout1"
+        <FrameLayout
+            android:id="@+id/root_FrameLayout1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+            <ImageView
+                android:id="@+id/imageViewSimilar"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_weight="1">
+                android:scaleType="centerCrop" />
 
-                <ImageView
-                    android:id="@+id/imageViewSimilar"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scaleType="centerCrop" />
-
-            </FrameLayout>
+        </FrameLayout>
 
     </android.support.v7.widget.CardView>
 

@@ -78,6 +78,24 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
 
                         }
                     });
+        }else{
+            picasso = Picasso.with(context);
+            requestCreator = picasso.load("http://contentinjection.com/wp-content/uploads/2014/03/yellow-colored-danger-shock-hazard-sign.jpg");
+
+            requestCreator.resizeDimen(R.dimen.height, R.dimen.width)
+                    .centerCrop()
+                    .into(holder.mLayoutSimilarPhotosBinding.imageViewSimilar, new Callback() {
+                        @Override
+                        public void onSuccess() {
+
+                        }
+
+                        @Override
+                        public void onError() {
+
+                        }
+                    });
+
         }
     }
 

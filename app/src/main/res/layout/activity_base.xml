@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:tools="http://schemas.android.com/tools"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <LinearLayout
-        android:background="@android:color/white"
+        android:id="@+id/baseRootLinearLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/baseRootLinearLayout"
-        tools:context=".presenter.base.BaseActivity"
-        android:orientation="vertical">
+        android:background="@android:color/white"
+        android:orientation="vertical"
+        tools:context=".presenter.base.BaseActivity">
 
 
     </LinearLayout>
