@@ -3,6 +3,7 @@ package com.example.ashik.photopandabeta;
 import android.content.Context;
 import android.databinding.DataBindingUtil;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -64,6 +65,8 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
                 requestCreator = picasso.load(
                         new File(imagePath)
                 );
+                Log.d("TAG imgdir", imagePath);
+
             }
             requestCreator.resizeDimen(R.dimen.height, R.dimen.width)
                     .centerCrop()

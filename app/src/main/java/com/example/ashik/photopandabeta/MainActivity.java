@@ -226,25 +226,25 @@ public class MainActivity extends BasePermissionActivity {
 
     private Bitmap getBitmap(String imageDir, int position) {
 
-        Bitmap original = BitmapHelper.decodeSampledBitmapFromFile(imageDir, 50, 50);
-        //    Log.d("TAG imgdir", imageDir);
+        Bitmap original = BitmapHelper.decodeSampledBitmapFromFile(imageDir, 0, 0);
+        //Log.d("TAG imgdir", imageDir);
         return original;
 
     }
 
-    private boolean compareDimensions(String img1, String img2) {
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(img1, options);
-        imageHeight = options.outHeight;
-        imageWidth = options.outWidth;
-        BitmapFactory.decodeFile(img2, options);
-        imageHeight2 = options.outHeight;
-        imageWidth2 = options.outWidth;
-        if (imageHeight == imageHeight2 && imageWidth == imageWidth2)
-            return true;
-        return false;
-    }
+//    private boolean compareDimensions(String img1, String img2) {
+//        BitmapFactory.Options options = new BitmapFactory.Options();
+//        options.inJustDecodeBounds = true;
+//        BitmapFactory.decodeFile(img1, options);
+//        imageHeight = options.outHeight;
+//        imageWidth = options.outWidth;
+//        BitmapFactory.decodeFile(img2, options);
+//        imageHeight2 = options.outHeight;
+//        imageWidth2 = options.outWidth;
+//        if (imageHeight == imageHeight2 && imageWidth == imageWidth2)
+//            return true;
+//        return false;
+//    }
 
     /**
      * Getting All Images Path.
@@ -274,6 +274,7 @@ public class MainActivity extends BasePermissionActivity {
 
             listOfAllImages.add(absolutePathOfImage);
         }
+        cursor.close();
         return listOfAllImages;
     }
 

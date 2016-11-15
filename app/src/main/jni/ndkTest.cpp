@@ -69,7 +69,7 @@ extern "C" {
 
                     env->ReleaseByteArrayElements(yuv, _yuv, 0);
                     env->ReleaseIntArrayElements(bgra, _bgra, 0);
-                    // __android_log_print(ANDROID_LOG_INFO, "focusmeasure", "test int = %f", ratio);
+                     __android_log_print(ANDROID_LOG_INFO, "ratio", "test int = %f", ratio);
 
                     if (ratio >= .7) {
                         return JNI_TRUE;
@@ -104,12 +104,12 @@ extern "C" {
 
                    // Change the value 55 here to optimise the blurry detection
 
-                    // __android_log_print(ANDROID_LOG_INFO, "focusmeasure", "test int = %f", focusMeasure);
+                     __android_log_print(ANDROID_LOG_INFO, "focusmeasure", "test int = %f", focusMeasure);
 
                    env->ReleaseByteArrayElements(yuv, _yuv, 0);
                    env->ReleaseIntArrayElements(bgra, _bgra, 0);
 
-                   if (focusMeasure < 1000) {
+                   if (focusMeasure < 55) {
                        return JNI_TRUE;
                    } else {
                        return JNI_FALSE;
